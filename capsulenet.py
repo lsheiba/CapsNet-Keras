@@ -20,6 +20,8 @@ import numpy as np
 from keras import layers, models, optimizers
 from keras import backend as K
 from keras.utils import to_categorical
+import matplotlib
+matplotlib.use('agg')
 import matplotlib.pyplot as plt
 from utils import combine_images
 from PIL import Image
