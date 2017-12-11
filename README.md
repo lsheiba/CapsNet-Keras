@@ -28,7 +28,7 @@ Open an issue or contact me with E-mail `guoxifeng1990@163.com` or WeChat `wenlo
 ## Usage
 
 **Step 1.
-Install [Keras>=2.0](https://github.com/fchollet/keras) 
+Install [Keras>=2.0.7](https://github.com/fchollet/keras) 
 with [TensorFlow>=1.2](https://github.com/tensorflow/tensorflow) backend.**
 ```
 pip install tensorflow-gpu
@@ -37,8 +37,8 @@ pip install keras
 
 **Step 2. Clone this repository to local.**
 ```
-git clone https://github.com/XifengGuo/CapsNet-Keras.git
-cd CapsNet-Keras
+git clone https://github.com/XifengGuo/CapsNet-Keras.git capsnet-keras
+cd capsnet-keras
 ```
 
 **Step 3. Train a CapsNet on MNIST**  
@@ -47,20 +47,18 @@ Training with default settings:
 ```
 python capsulenet.py
 ```
-Training with one routing iteration (default 3).   
-```
-python capsulenet.py --num_routing 1
-```
 
-Other parameters include `batch_size, epochs, lam_recon, shift_fraction, save_dir` can be
-passed to the function in the same way. Please refer to `capsulenet.py`
+More detailed usage run for help:
+```
+python capsulenet.py -h
+```
 
 **Step 4. Test a pre-trained CapsNet model**
 
 Suppose you have trained a model using the above command, then the trained model will be
 saved to `result/trained_model.h5`. Now just launch the following command to get test results.
 ```
-$ python capsulenet.py --is_training 0 --weights result/trained_model.h5
+$ python capsulenet.py -t -w result/trained_model.h5
 ```
 It will output the testing accuracy and show the reconstructed images.
 The testing data is same as the validation data. It will be easy to test on new data, 
@@ -81,15 +79,15 @@ But during training, no validation accuracy is reported.
 
 ## Results
 
-**Test Errors**   
+#### Test Errors   
 
 CapsNet classification test **error** on MNIST. Average and standard deviation results are
 reported by 3 trials. The results can be reproduced by launching the following commands.   
  ```
- python capsulenet.py --num_routing 1 --lam_recon 0.0    #CapsNet-v1   
- python capsulenet.py --num_routing 1 --lam_recon 0.392  #CapsNet-v2
- python capsulenet.py --num_routing 3 --lam_recon 0.0    #CapsNet-v3 
- python capsulenet.py --num_routing 3 --lam_recon 0.392  #CapsNet-v4
+ python capsulenet.py --routings 1 --lam_recon 0.0    #CapsNet-v1   
+ python capsulenet.py --routings 1 --lam_recon 0.392  #CapsNet-v2
+ python capsulenet.py --routings 3 --lam_recon 0.0    #CapsNet-v3 
+ python capsulenet.py --routings 3 --lam_recon 0.392  #CapsNet-v4
 ```
    Method     |   Routing   |   Reconstruction  |  MNIST (%)  |  *Paper*    
    :---------|:------:|:---:|:----:|:----:
@@ -103,26 +101,48 @@ Losses and accuracies:
 ![](result/log.png)
 
 
-**Training Speed**  
+#### Training Speed 
 
 About `100s / epoch` on a single GTX 1070 GPU.   
 About `80s / epoch` on a single GTX 1080Ti GPU.   
 About `55s / epoch` on two GTX 1080Ti GPU by using `capsulenet-multi-gpu.py`.      
 
-**Reconstruction result**  
+#### Reconstruction result  
 
 The result of CapsNet-v4 by launching   
 ```
-python capsulenet.py --is_training 0 --weights result/trained_model.h5
+python capsulenet.py -t -w result/trained_model.h5
 ```
 Digits at top 5 rows are real images from MNIST and 
 digits at bottom are corresponding reconstructed images.
 
-![](real_and_recon.png)
+![](result/real_and_recon.png)
 
-**The model structure:**  
- 
-![](result/model.png)
+#### Manipulate latent code
+
+```
+python capsulenet.py -t --digit 5 -w result/trained_model.h5 
+```
+For each digit, the *i*th row corresponds to the *i*th dimension of the capsule, and columns from left to 
+right correspond to adding `[-0.25, -0.2, -0.15, -0.1, -0.05, 0, 0.05, 0.1, 0.15, 0.2, 0.25]` to 
+the value of one dimension of the capsule. 
+
+As we can see, each dimension has caught some characteristics of a digit. The same dimension of 
+different digit capsules may represent different characteristics. This is because that different 
+digits are reconstructed from different feature vectors (digit capsules). These vectors are mutually 
+independent during reconstruction.
+    
+![](result/manipulate-0.png)
+![](result/manipulate-1.png)
+![](result/manipulate-2.png)
+![](result/manipulate-3.png)
+![](result/manipulate-4.png)
+![](result/manipulate-5.png)
+![](result/manipulate-6.png)
+![](result/manipulate-7.png)
+![](result/manipulate-8.png)
+![](result/manipulate-9.png)
+
 
 ## Other Implementations
 
